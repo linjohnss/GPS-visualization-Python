@@ -2,8 +2,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-
-
+fig, axis1 = plt.subplots(figsize=(10, 10))
+axis1.grid()
+axis1.set_xlabel('Longitude')
+axis1.set_ylabel('Latitude')
 class GPSVis(object):
     """
         Class for GPS data visualization using pre-downloaded OSM map in image format.
@@ -22,7 +24,7 @@ class GPSVis(object):
         self.x_ticks = []
         self.y_ticks = []
 
-    def plot_map(self, output='save', save_as='resultMap.png'):
+    def plot_map(self):
         """
         Method for plotting the map. You can choose to save it in file or to plot it.
         :param output: Type 'plot' to show the map or 'save' to save it.
@@ -30,17 +32,10 @@ class GPSVis(object):
         :return:
         """
         self.get_ticks()
-        fig, axis1 = plt.subplots(figsize=(10, 10))
         axis1.imshow(self.result_image)
-        axis1.set_xlabel('Longitude')
-        axis1.set_ylabel('Latitude')
         axis1.set_xticklabels(self.x_ticks)
         axis1.set_yticklabels(self.y_ticks)
-        axis1.grid()
-        if output == 'save':
-            plt.savefig(save_as)
-        else:
-            plt.show()
+        plt.pause(0.001)
 
     def create_image(self, color, width=2):
         """
@@ -49,11 +44,11 @@ class GPSVis(object):
         :param width: Width of the drawn GPS records.
         :return:
         """
-        data = pd.read_csv(self.data_path, names=['LATITUDE', 'LONGITUDE'], sep=',')
+        data = pd.read_csv(self.data_path, header=None, sep=',')
 
         self.result_image = Image.open(self.map_path, 'r')
         img_points = []
-        gps_data = tuple(zip(data['LATITUDE'].values, data['LONGITUDE'].values))
+        gps_data = tuple(zip(data[1].values, data[2].values))
         for d in gps_data:
             x1, y1 = self.scale_to_img(d, (self.result_image.size[0], self.result_image.size[1]))
             img_points.append((x1, y1))
